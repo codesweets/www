@@ -1,0 +1,212 @@
+But dependencies are going to be an issue
+ - I guess for now we can just allow you to create whatever configuration you want and then validate it when we run
+ - Like you can place anything anywhere, but then we do error messages that say invalid config
+ - I like this!
+
+If we're going to create the components and manipulate them live, we need to be able to set the data at any time
+- But really why I guess? We know dependencies, schema, etc... no need to create them yet
+
+Function.name is not reliable even with setting not to mangle function names
+ - In some cases it adds the namespaces/module/filename to the class name
+ - Might be easier if we just make it called like 'type' or something
+ - Throw an error if we don't find type (make a get type name function)
+
+The reason we are using webpack and not just typescript
+ - For both, we can probably invent some sort of require schema for bringing in the JSON Schema
+ - However, typescript will NOT inline it which means I am unsure what happens when we run in a browser
+ - Moreover, typescript will not generate a single file
+ - Typescript will also not bundle dependencies so their code will not work
+ - Typescript also does not polyfill (fs, process, etc.)
+
+We could make the schema extraction part of a webpack plugin
+
+Getting typescript to generate a single file is almost freaking impossible
+ - I really just want the json to get inlined
+ - Back to webpack it is I guess
+ - We write a webpack tool that takes an array of entrypoints
+ - We write a custom loader that loads / inlines the output json schema
+
+We really need to separate out the typescript parsing so that code doesn't need to run at runtime
+ - Avoids us needing to package the typescript compiler
+ - Make our own sweet.js that takes an array of files to compile
+ - We then generate the json files
+
+We should make webpack able to pack each task.js and module
+ - Then we use either the AST or whatever to determine who is a base class
+ - That's how we register components
+ - I think this is a pretty good architecture
+ - This way we don't need to package up typescript too
+ - Technically packing up webpack wouldn't be a bad idea...
+   - Less compute on the server
+   - But now clients can upload arbitrary JavaScript... sandboxed so who cares!
+ - We can modularize these pretty well too (lazy load or whatever)
+   - The typescript pipeline doesn't need to be loaded when we run the packed JavaScript
+ - Ultimately we can't have the scripts load the typescript files themselves
+   - Without a massively annoying packaging problem
+   - Separate client code (webpack) and server code (tsc)
+
+How do they package node_modules?
+ - They have to upload it themselves I guess
+ - Or we really do containerization for them
+
+Ok so we make a tool that packages up client tasks with typescript only
+ - Eventually we can try and port this code to the browser
+ - We'll do our json schema parsing as a plugin
+
+Seperate out the code needed to pack the typescript component vs the code needed to run
+ - How we move forward on this...
+ - Get task and all its stuff into a single library
+ - Choose a single task to compile, like Directory
+ - Make a new index whose sole purpose is packaging
+
+I don't truly need webpack to run on the client
+ - I can just run the typescript compiler
+
+What do we lose by running entirely in the browser?
+ - Lose the ability to invoke command line and shell scripts
+
+For WYSIWYG, we may want to just construct the tasks up front
+ - Basically components are required to construct a child task within their constructor
+ - Data is not validated until initialize
+ - E.g. components can set data on other components
+ - This seems like a much better model...
+ - We could entirely get rid of outputs then because we can just query what components are available after construction
+
+To avoid loading everyone's code up front, we'll have a database of the names and the files associated
+ - We only load the files if the user clicks on the component
+ - This also means we really don't know what it outputs until we add it, which is fine
+ - Unless the database records this
+
+I think we should have just one filesystem and then we write to directories within that filesystem
+ - It would make copies and file systems much easier
+
+Maybe the task root should just pick a directory and use fs
+
+This is a node system with inputs and outputs
+The nodes are heterogenous
+
+The outputs can be whole nodes themselves
+
+Walk the root of the graph and call process
+ - A node may generically process its children (in order)
+ - Or it may choose the process order manually
+
+The node inputs need to be declared as an object with parameter names
+
+I suppose outputs should be too
+
+What is it that I truly want?
+
+I want users to be able to write components that can plug together
+ - All written by different users
+
+As well as customized flows are curated
+
+A user can walk through by starting at the root node and add things to it
+
+Rather than being a crazy graph where we can connect everything, what about just a blackboard and a stack
+ - Simplify the crap out of it
+
+We still have dependencies, but the UI might be considerably simplified
+ - Means we can't really output single values, only components
+ - Might be way easier though than configuring a stupid graph
+ - Yes, we are doing this
+
+We might want optional dependencies that display recommended / warnings if it is not there
+ - Like, techinically you can install this but it's not recommended unless you have this
+ - This mostly influences UX
+
+Another type of component, JsonPatch
+ - Takes a file
+
+An example of a custom component, NodeInit which outputs NodePackageJson : SpecificFile
+ - Inputs author, keywords, license, etc.
+ - Optional dependency on repository so it can get the repo url
+ - Creates the package.json file
+
+ - Create a component from multiple components (maybe we just do this in code, but we make it so code can easily use components) YEP
+
+Eslint component
+ - Dependence on NodeInit
+ - Setup the .eslintrc.json with all inputs (maybe with an 'advanced' category)
+ - It's a composition itself that contains a NodeAddDependency with eslint
+
+ - We should make a user selectable component, UserSelection
+   - Basically only used when we're making templates
+   - We declare what it must produce, for example a FileSystem or GitRepository
+   - We put a title and description on it
+   - It provides a dropdown to the user that is effectively bottom up
+     - Enumerate all things that produce a FileSystem
+     - If you click add, it will add it and all dependencies
+     - For example, GitHubCreateRepository will add GitHubAuthorization
+
+GitHubAuthorization
+GitHubCreateRepository
+File
+ - Create [Append, Prepend, Ovewrite, ReplaceSubstring]
+ - Path: index.js
+ - Content: console.log('hello world')
+
+ScriptBash
+ScriptNodeJs
+
+Enable/disable components (saves the values but allows users to enable them)
+ - Must also disable dependencies
+
+Architecturally, we spin up an image that we maintain on DockerHub
+ - Many different useful utilities installed, much like a build server
+ - All scripts run on a container and the container has a timeout limit
+
+Hovering over the component shows a description as well as what it produces
+
+ComposableFile
+ - Utility class with a bunch of helpers
+ - Contains sections that are sorted by priority?
+ - Replace, etc functionality
+ - ReadMe is a ComposableFile
+ - Insertion points? Maybe these points are components themselves
+
+CmakeInit
+ - Optional dependency on ReadMe
+ - Creates the CMakeLists.txt
+ - Adds build instructions automagically into ReadMe
+   - Should add an insertion point for cmake command line
+
+VcPkg
+ - Optional dependency on cmake?
+ - Modifies build instructions to include CMAKE_TOOLCHAIN_FILE=...
+
+JSLinux notes:
+
+wget https://launchpad.net/ubuntu/+archive/primary/+files/dpkg_1.18.4ubuntu1.1_i386.deb
+wget http://security.ubuntu.com/ubuntu/pool/main/a/apt/apt_1.9.1_i386.deb
+
+Need to host a proxy of our own
+
+Need to make an early bootup phase (maybe run in web-worker or something)
+Need to synchronize filesystem somehow
+
+See if we can make docker images work...
+
+When we make the shell script, make a component that lets us upload files as the filesystem
+ - Individual files with a path
+ - Zip/tar/etc files that we automatically extract for them
+ - Directories?
+
+We generate an external file that has the imports, maybe
+Then we just fill out window globals and use evalled loadjs statements
+
+
+Use babel to load the file and handle all the imports...
+ - We could probably remove our custom code (imports)
+
+   const response = await fetch("https://registry.npmjs.org/-/v1/search?text=@kernel-js&size=250&from=0");
+
+  console.log(await response.json());
+
+I think I just have to do the full setup... kinda sucks but it is what it is
+Move each set of components into their own repo
+
+Publish sweet pack as its own tool (first task)
+
+Then start making the tasks (check their d.ts files...)

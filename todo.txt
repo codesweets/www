@@ -1,0 +1,81 @@
+DONE - Lets get this code running in a browser
+DONE - Make it work with optimizations
+DONE - Maybe just try actually exporting the var and then at the bottom of the script we do the default export?
+DONE - Get wepback to export typescript types file along with js (sweet pack)
+DONE - Setup a react page where we can see the json schema UI for one component
+DONE - Run all the build tasks in parallel
+DONE - I want to abuse the array UI beacuse it has everything (nesting, etc)
+DONE - Components register themselves rather than us relying on scanning exports
+DONE - Schema generator doesn't recursively pull in definitions
+DONE - Fix / patch memfs to not warn and not have the process issue
+DONE - Make components addable/removable
+DONE - Make certain components hidden (not addable)
+DONE - Fix buttons / style / theme (make it reasonable)
+DONE - Submitting should run the components
+DONE - Deploy to openode
+DONE - Setup TravisCI to build all the projects (with GitHub)
+DONE - Make a schema we can validate for TaskSaved
+DONE - Remove webpack size limitation warnings (at least in sweetpack)
+DONE - Make sure we can declare external libraries with the sweet packer (basically just other components)
+DONE - We can't easily pack everything up, but we can declare externals
+DONE - So we can have multiple builds
+DONE - We can add import lines ourselves
+DONE - Setup webpack with React - https://www.valentinog.com/blog/babel/
+DONE - Get React JSX working with TypeScript
+DONE - Need to capture errors and show them in the correct places
+DONE - Add a catch handler for err on the component that logs an error
+DONE - Make a side by side view of the json that gets written - can be entered by the user
+DONE - Console output on the page
+DONE - Sort components typenames
+
+Generate imports that target unpkg
+
+Make the json format include the npm registry name location (package)
+ - @sweet/core
+ - @sweet/file
+ - @sweet/git
+ - @sweet/github
+
+Integrate npm search - only search for sweets (basically @sweet/something)
+ - Determine how to pull and load a sweet file (by version, or latest)
+ - Push our sweet files as npm modules
+
+Wait until linux boots up entirely by waiting for a particular read signal
+ - The filesystem is initialized with a shell script that contains their file
+ - Or maybe a .bashrc?
+ - Let them upload a filesystem themselves
+ - Option to initialize the filesystem with previous results from fs (option default true, slower)
+ - At the end we copy everything to /mnt/ and download it (option default true, slower)
+
+Host the isogit proxy (only allow requests from our domain)
+Host the linuxjs proxy (only allow requests from our domain)
+
+Setup linuxjs so it can run dpkg/apt/apt-get/sudo (just for convenience)
+
+Expand and contract components (keep the name showing)
+Drag to re-order
+Automatically add single depdenencies (or an empty restricted template)
+Advanced properties that we hide by default
+
+Custom UI for the components dropdown that lists all components from a database and loads them upon clicking
+
+Remove the USER/PASS stuff - replace with a json loader that loads a pre-existing config file
+
+Need to get the database working so we can detect all exported classes
+ - Or we just have users enter the names of the components into a database... easier!
+ - With the way we're doing dependencies we don't really need to know the inputs/outputs or even schema
+ - Because we're going to actually build the object live
+ - The only thing is being able to import the javascript files on the fly
+ - We can just make a premade list of the files for now
+
+Source mapping is probably messed up by my additions, see if we can make a webpack plugin to do it properly
+
+Find a way to make it an error if you include another sweet packed file directly (not imported)
+
+const loadScript = (url: string): Promise<any> => new Promise((resolve) => {
+  const script = document.createElement("script");
+  script.setAttribute("type", "text/javascript");
+  script.setAttribute("src", url);
+  document.getElementsByTagName("head")[0].appendChild(script);
+  script.onload = resolve;
+});
