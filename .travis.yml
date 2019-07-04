@@ -7,9 +7,10 @@ script:
 - npm run build
 deploy:
   provider: pages
+  local_dir: ./bin
   github_token:
     secure: L65VlOKLcn2J+cs7aiE5whqZqHMb/f5w/LqRZHuTLALKgv2Jnu8yAWsa8b56XBYDyIBfRQd+94aSW1/qzkzeGTS0+k0e0yswkwb0/pZOJHvORS7mpJ28jBL3KfavirTunI2r9ZV/hGaeTLjah0M6e//3NIPli2r5DaMt3m5fMSVtqHv+7oAH22peU8G3RZib75xN+bEs458sQhmqe6dr822zYSEYcZsMGSdoRI8nLtheDtg/4R6ReJQUfswIs2QMXZWh9CQmYiKFC18bjvY5Y6sn2G6RPKri2/Ejfw3V1mjqAiAocOZRcqoQzlg63vK/S5mHlzh4MU8TXPC1TE0ezIQiUtqSxjBm/Z3TB0WxagHpHk0Gqr9nUXcu7EER3Qwk9nr8J1mPWSSQUCGR1tnkwKlbxQNXRNuQPeUTOb1bRetQevSW/cX6y1GPefambrgavBqnfwDN83zk2u12U7dI/WgUflslmkYOdIGG+4ScYeP++I0YRzov65Fgb2D+RxxSIBYSfyWII3lz9p0ixdI5fdpkt4pFMhdXRFzG3qq3arPwqvpdv3XX61SpfQqjOyZ1cR4aURUNYRTyyA0gkN9e0mGx5XsCCylYVRZjqCa26OMvvlhhQdrcRdGRAn+1Wa5M9Koyr0Kaj8NuY2MLUVEOVL5omqqgeWV2HHYqChpeby4=
   skip_cleanup: true
-  keep_history: true
+  keep_history: false
   on:
     branch: master

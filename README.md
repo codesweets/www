@@ -11,5 +11,6 @@ Visit the [playground](https://codesweets.github.io).
 npm install -g http-server
 npm install
 npm run build
+cd bin
 http-server -c-1
 ```
