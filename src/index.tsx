@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Col, Glyphicon, Grid, Panel, Row} from "react-bootstrap";
-import Form, {IChangeEvent} from "react-jsonschema-form";
+import Form, {IChangeEvent, ISubmitEvent} from "react-jsonschema-form";
 // eslint-disable-next-line id-length
 import $ from "jquery";
 import {Controlled as CodeMirror} from "react-codemirror2";
@@ -75,12 +75,78 @@ globals.ontaskmeta = (meta: TaskMeta) => {
   console.log(JSON.stringify(meta.schema));
 };
 
+let render: () => void = null;
+let submit: (event: ISubmitEvent<TaskSaved>) => void = null;
+
+let data = {};
+let code = "{}";
+let glyph = "ok";
+let output = "";
+
+const codeChanged = (editor: any, codeData: any, value: string) => {
+  console.log("CODE CHANGED");
+  code = value;
+  try {
+    data = JSON.parse(value);
+    glyph = "ok";
+  } catch (err) {
+    console.log(err);
+    glyph = "remove";
+  }
+  render();
+};
+
+const formChanged = (event: IChangeEvent<TaskSaved>) => {
+  console.log("FORM CHANGED");
+  glyph = "ok";
+  data = event.formData;
+  code = JSON.stringify(data, null, 2);
+  render();
+};
+
+render = () => {
+  ReactDOM.render(
+    <Grid>
+      <Row>
+        <Col md={7}>
+          <Form
+            schema={schema}
+            formData={data}
+            onChange={formChanged}
+            onSubmit={submit} />
+        </Col>
+        <Col md={5}>
+          <Row>
+            <Panel>
+              <Panel.Heading><Glyphicon glyph={glyph} /> JSON</Panel.Heading>
+              <CodeMirror value={code} onBeforeChange={codeChanged} options={{
+                lineNumbers: true,
+                tabSize: 2
+              }} />
+            </Panel>
+          </Row>
+          <Row>
+            <Panel>
+              <Panel.Heading>Output</Panel.Heading>
+              <CodeMirror value={output} onBeforeChange={null} options={{
+                lineNumbers: true,
+                readOnly: true,
+                tabSize: 2
+              }} />
+            </Panel>
+          </Row>
+        </Col>
+      </Row>
+    </Grid>
+    , document.getElementById("app")
+  );
+};
+
+render();
+
 const main = async () => {
   const sweet = await loadModule("https://unpkg.com/@codesweets/core");
-
-  let render: () => void = null;
-  let output = "";
-  const submit = (event: IChangeEvent<TaskSaved>) => {
+  submit = (event) => {
     output = "";
     const saved = event.formData;
     const task = sweet.default.Task.deserialize(saved) as TaskRoot;
@@ -100,80 +166,15 @@ const main = async () => {
     };
     task.run();
   };
+  render();
 
   await Promise.all([
-    loadModule("https://unpkg.com/@codesweets/file")
-
-    /*
-     * /loadModule("https://unpkg.com/@codesweets/git"),
-     * /loadModule("https://unpkg.com/@codesweets/github")
-     */
+    loadModule("https://unpkg.com/@codesweets/file"),
+    loadModule("https://unpkg.com/@codesweets/git"),
+    loadModule("https://unpkg.com/@codesweets/github")
   ]);
+  render();
 
   console.log(JSON.stringify(schema));
-  let data = {};
-  let code = "{}";
-  let glyph = "ok";
-
-  const codeChanged = (editor: any, codeData: any, value: string) => {
-    console.log("CODE CHANGED");
-    code = value;
-    try {
-      data = JSON.parse(value);
-      glyph = "ok";
-    } catch (err) {
-      console.log(err);
-      glyph = "remove";
-    }
-    render();
-  };
-
-  const formChanged = (event: IChangeEvent<TaskSaved>) => {
-    console.log("FORM CHANGED");
-    glyph = "ok";
-    data = event.formData;
-    code = JSON.stringify(data, null, 2);
-    render();
-  };
-
-  render = () => {
-    ReactDOM.render(
-      <Grid>
-        <Row>
-          <Col md={7}>
-            <Form
-              schema={schema}
-              formData={data}
-              onChange={formChanged}
-              onSubmit={submit} />
-          </Col>
-          <Col md={5}>
-            <Row>
-              <Panel>
-                <Panel.Heading><Glyphicon glyph={glyph} /> JSON</Panel.Heading>
-                <CodeMirror value={code} onBeforeChange={codeChanged} options={{
-                  lineNumbers: true,
-                  tabSize: 2
-                }} />
-              </Panel>
-            </Row>
-            <Row>
-              <Panel>
-                <Panel.Heading>Output</Panel.Heading>
-                <CodeMirror value={output} onBeforeChange={null} options={{
-                  lineNumbers: true,
-                  readOnly: true,
-                  tabSize: 2
-                }} />
-              </Panel>
-            </Row>
-          </Col>
-        </Row>
-      </Grid>
-      , document.getElementById("app")
-    );
-  };
-
-  render();
 };
 main();
