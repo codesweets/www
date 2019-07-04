@@ -101,13 +101,14 @@ const main = async () => {
     task.run();
   };
 
-  /*
-   * /await Promise.all([
-   * /  loadModule("https://unpkg.com/@codesweets/file.js"),
-   * /  loadModule("https://unpkg.com/@codesweets/git.js"),
-   * /  loadModule("https://unpkg.com/@codesweets/github.js")
-   * /]);
-   */
+  await Promise.all([
+    loadModule("https://unpkg.com/@codesweets/file")
+
+    /*
+     * /loadModule("https://unpkg.com/@codesweets/git"),
+     * /loadModule("https://unpkg.com/@codesweets/github")
+     */
+  ]);
 
   console.log(JSON.stringify(schema));
   let data = {};

@@ -27,12 +27,11 @@ DONE - Add a catch handler for err on the component that logs an error
 DONE - Make a side by side view of the json that gets written - can be entered by the user
 DONE - Console output on the page
 DONE - Sort components typenames
-
-Generate imports that target unpkg
+DONE - Generate imports that target unpkg
+DONE - @codesweets/core
+DONE - @codesweets/file
 
 Make the json format include the npm registry name location (package)
- - @sweet/core
- - @sweet/file
  - @sweet/git
  - @sweet/github
 

@@ -4,8 +4,11 @@
   "description": "The main website for Code Sweets.",
   "main": "bin/index.js",
   "scripts": {
-    "build": "./build.sh",
-    "deploy": "./deploy.sh"
+    "build": "./build.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codesweets/www.git"
   },
   "config": {
     "unsafe-perm": true
@@ -13,7 +16,7 @@
   "author": "Trevor Sundberg",
   "license": "MIT",
   "dependencies": {
-    "@codesweets/core": "^1.0.6",
+    "@codesweets/core": "^1.0.8",
     "@types/bootstrap": "^4.3.0",
     "@types/codemirror": "0.0.75",
     "@types/jquery": "^3.3.30",
@@ -36,13 +39,12 @@
     "@types/webpack": "^4.4.32",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
-    "eslint-plugin-react": "^7.13.0",
     "eslint": "^5.16.0",
-    "openode": "^2.0.4",
+    "eslint-plugin-react": "^7.13.0",
     "source-map-loader": "^0.2.4",
     "ts-loader": "^6.0.2",
     "typescript": "^3.4.5",
-    "webpack-cli": "^3.3.3",
-    "webpack": "^4.33.0"
+    "webpack": "^4.33.0",
+    "webpack-cli": "^3.3.3"
   }
 }
