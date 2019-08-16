@@ -1,3 +1,4 @@
+import "codesweets/bin/runtime";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Col, Glyphicon, Grid, Panel, Row} from "react-bootstrap";
@@ -5,20 +6,19 @@ import Form, {IChangeEvent, ISubmitEvent} from "react-jsonschema-form";
 // eslint-disable-next-line id-length
 import $ from "jquery";
 import {Controlled as CodeMirror} from "react-codemirror2";
-import {Hello} from "./components/hello";
 import {JSONSchema6} from "json-schema";
+import {Search} from "./components/search";
 
 type TaskSaved = import("@codesweets/core").TaskSaved;
 type TaskRoot = import("@codesweets/core").TaskRoot;
 type TaskMeta = import("@codesweets/core").TaskMeta;
 
 ReactDOM.render(
-  <Hello compiler="TypeScript" framework="React" />,
+  <Search />,
   document.getElementById("example")
 );
 
-// eslint-disable-next-line no-eval
-const loadModule = (url: string): Promise<any> => eval(`import(${JSON.stringify(url)})`);
+const loadModule = (url: string): any => (window as any).require(url);
 
 const taskNames: string[] = [];
 const taskSchemas: JSONSchema6[] = [];
@@ -119,20 +119,24 @@ render = () => {
           <Row>
             <Panel>
               <Panel.Heading><Glyphicon glyph={glyph} /> JSON</Panel.Heading>
-              <CodeMirror value={code} onBeforeChange={codeChanged} options={{
-                lineNumbers: true,
-                tabSize: 2
-              }} />
+              <div style={{position: "relative", zIndex: 0}}>
+                <CodeMirror value={code} onBeforeChange={codeChanged} options={{
+                  lineNumbers: true,
+                  tabSize: 2
+                }} />
+              </div>
             </Panel>
           </Row>
           <Row>
             <Panel>
               <Panel.Heading>Output</Panel.Heading>
-              <CodeMirror value={output} onBeforeChange={null} options={{
-                lineNumbers: true,
-                readOnly: true,
-                tabSize: 2
-              }} />
+              <div style={{position: "relative", zIndex: 0}}>
+                <CodeMirror value={output} onBeforeChange={null} options={{
+                  lineNumbers: true,
+                  readOnly: true,
+                  tabSize: 2
+                }} />
+              </div>
             </Panel>
           </Row>
         </Col>
@@ -145,15 +149,15 @@ render = () => {
 render();
 
 const main = async () => {
-  const sweet = await loadModule("https://unpkg.com/@codesweets/core");
+  const sweet = await loadModule("@codesweets/core");
   submit = (event) => {
     output = "";
     const saved = event.formData;
-    const task = sweet.default.Task.deserialize(saved) as TaskRoot;
+    const task = sweet.Task.deserialize(saved) as TaskRoot;
     console.log("root", task);
     task.logger = (component, type, ...args) => {
-      console.log(type, ...args);
-      output += `${args.join(", ")}\n`;
+      console.log(type, component.meta.typename, ...args);
+      output += `${component.meta.typename} ${args.join(", ")}\n`;
       render();
       if (type === "error") {
         const query = $(`#root_components_${component.id}_typename`);
@@ -169,9 +173,9 @@ const main = async () => {
   render();
 
   await Promise.all([
-    loadModule("https://unpkg.com/@codesweets/file"),
-    loadModule("https://unpkg.com/@codesweets/git"),
-    loadModule("https://unpkg.com/@codesweets/github")
+    loadModule("@codesweets/file"),
+    loadModule("@codesweets/git"),
+    loadModule("@codesweets/github")
   ]);
   render();
 

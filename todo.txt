@@ -30,12 +30,21 @@ DONE - Sort components typenames
 DONE - Generate imports that target unpkg
 DONE - @codesweets/core
 DONE - @codesweets/file
+DONE - @codesweets/git
+DONE - @codesweets/github
+DONE - I think before we do anything else, we need to make importing like code-sandbox
+DONE - So we can live import and not have to pack everything ourselves
+DONE - We can basically get rid of our codesweets tool and our crazy way of importing
+DONE - NO WE CAN'T, json schema creation
+DONE - Ok but still it's way better!
+DONE - But then fs will just work, that and friends!
 
 Make the json format include the npm registry name location (package)
- - @sweet/git
- - @sweet/github
 
-Integrate npm search - only search for sweets (basically @sweet/something)
+Generate a component from the unfilled out entries in the json schema
+ - Basically a 'reduced schema'
+
+Integrate npm search - only search for keywords:codesweets
  - Determine how to pull and load a sweet file (by version, or latest)
  - Push our sweet files as npm modules
 
