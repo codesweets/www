@@ -13,12 +13,16 @@ type TaskSaved = import("@codesweets/core").TaskSaved;
 type TaskRoot = import("@codesweets/core").TaskRoot;
 type TaskMeta = import("@codesweets/core").TaskMeta;
 
+const loadModule = (url: string): any => (window as any).require(url);
+
 ReactDOM.render(
-  <Search />,
+  <Search
+    onSelect={(library) => {
+      loadModule(library);
+    }}
+  />,
   document.getElementById("example")
 );
-
-const loadModule = (url: string): any => (window as any).require(url);
 
 const taskNames: string[] = [];
 const taskSchemas: JSONSchema6[] = [];
@@ -171,14 +175,5 @@ const main = async () => {
     task.run();
   };
   render();
-
-  await Promise.all([
-    loadModule("@codesweets/file"),
-    loadModule("@codesweets/git"),
-    loadModule("@codesweets/github")
-  ]);
-  render();
-
-  console.log(JSON.stringify(schema));
 };
 main();

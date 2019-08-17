@@ -1,5 +1,4 @@
 import * as React from "react";
-import {ActionMeta, ValueType} from "react-select/src/types";
 import AsyncSelect from "react-select/async";
 
 export interface SearchOption {
@@ -8,7 +7,7 @@ export interface SearchOption {
 }
 
 export interface SearchProps {
-  onChange?: (value: ValueType<SearchOption>, action: ActionMeta) => void;
+  onSelect?: (library: string) => void;
 }
 
 export class Search extends React.Component<SearchProps, {} > {
@@ -30,7 +29,7 @@ export class Search extends React.Component<SearchProps, {} > {
     searchUrl.searchParams.set("from", index.toString());
     const response = await fetch(searchUrl.href);
     const json = await response.json();
-    const result: SearchOption[] = json.objects.map((value: any) => ({
+    const result: SearchOption[] = json.objects.map((value: any): SearchOption => ({
       label: `${value.package.name} - ${value.package.description}`,
       value: value.package.name
     }));
@@ -49,9 +48,13 @@ export class Search extends React.Component<SearchProps, {} > {
     return <AsyncSelect
       cacheOptions
       defaultOptions
-      isClearable={true}
+      isClearable
       loadOptions={(inputValue) => this.loadOptions(inputValue)}
-      onChange={this.props.onChange}
+      onChange={(option, actionMeta) => {
+        if (this.props.onSelect && actionMeta.action === "select-option") {
+          this.props.onSelect((option as SearchOption).value);
+        }
+      }}
     />;
   }
 }
