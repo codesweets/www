@@ -15,15 +15,6 @@ type TaskMeta = import("@codesweets/core").TaskMeta;
 
 const loadModule = (url: string): any => (window as any).require(url);
 
-ReactDOM.render(
-  <Search
-    onSelect={(library) => {
-      loadModule(library);
-    }}
-  />,
-  document.getElementById("example")
-);
-
 const taskNames: string[] = [];
 const taskSchemas: JSONSchema6[] = [];
 
@@ -54,6 +45,22 @@ const schema: JSONSchema6 = {
   type: "object"
 };
 
+const uiSchemas = {};
+const uiSchema = {
+  components: {
+    items: uiSchemas
+  }
+};
+
+ReactDOM.render(
+  <Search
+    onSelect={(library) => {
+      loadModule(library);
+      console.log(JSON.stringify(schema));
+    }}
+  />,
+  document.getElementById("example")
+);
 const globals: any = global;
 globals.ontaskmeta = (meta: TaskMeta) => {
   console.log(meta.typename);
@@ -63,15 +70,21 @@ globals.ontaskmeta = (meta: TaskMeta) => {
   schema.definitions[meta.typename] = meta.schema;
   taskNames.push(meta.typename);
   taskNames.sort();
+
   const componentSchema: JSONSchema6 = {
     properties: {
-      data: meta.schema,
       typename: {
         enum: [meta.typename]
-      }
+      },
+      [meta.typename]: {$ref: `#/definitions/${meta.typename}`}
     }
   };
   taskSchemas.push(componentSchema);
+
+  if (meta.uiSchema) {
+    uiSchemas[meta.typename] = meta.uiSchema;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-extra-parens
   const compare = (lhs: any, rhs: any) => ((lhs > rhs) as any) - ((lhs < rhs) as any);
   taskSchemas.sort((lhs: any, rhs: any) => compare(lhs.properties.typename.enum[0], rhs.properties.typename.enum[0]));
@@ -115,6 +128,7 @@ render = () => {
         <Col md={7}>
           <Form
             schema={schema}
+            uiSchema={uiSchema}
             formData={data}
             onChange={formChanged}
             onSubmit={submit} />
@@ -155,6 +169,7 @@ render();
 const main = async () => {
   const sweet = await loadModule("@codesweets/core");
   submit = (event) => {
+    // Clear the browser fs (or re-initialize)
     output = "";
     const saved = event.formData;
     const task = sweet.Task.deserialize(saved) as TaskRoot;
