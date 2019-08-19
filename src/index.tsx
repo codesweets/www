@@ -138,9 +138,10 @@ const buildFsTree = (parentDir: string) => {
   for (const childPath of fs.readdirSync(parentDir)) {
     // eslint-disable-next-line no-sync
     if (fs.statSync(childPath).isDirectory()) {
-      buildFsTree(childPath);
+      node.children.push(buildFsTree(childPath));
     }
   }
+  return node;
 };
 
 const tree = {
