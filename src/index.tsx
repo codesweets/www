@@ -124,14 +124,21 @@ const formChanged = (event: IChangeEvent<TaskSaved>) => {
   render();
 };
 
-const {fs} = windowAny;
-
+// eslint-disable-next-line prefer-destructuring
+const fs: typeof import("fs") = windowAny.fs;
+// eslint-disable-next-line prefer-destructuring
+const path: typeof import("path") = windowAny.path;
 const buildFsTree = (parentDir: string) => {
+  const node = {
+    children: [],
+    name: path.basename(parentDir)
+  };
+
   // eslint-disable-next-line no-sync
-  for (const path of fs.readdirSync(parentDir)) {
+  for (const childPath of fs.readdirSync(parentDir)) {
     // eslint-disable-next-line no-sync
-    if (fs.statSync(path).isDirectory()) {
-      buildFsTree(path);
+    if (fs.statSync(childPath).isDirectory()) {
+      buildFsTree(childPath);
     }
   }
 };
