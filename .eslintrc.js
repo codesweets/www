@@ -52,6 +52,7 @@ module.exports = {
     "callback-return": "off",
     "no-plusplus": "off",
     "max-params": ["error", 6],
+    "no-sync": "off",
 
     "default-case": "off",
   },

@@ -6,6 +6,7 @@ import Form, {IChangeEvent, ISubmitEvent} from "react-jsonschema-form";
 // eslint-disable-next-line id-length
 import $ from "jquery";
 import {Controlled as CodeMirror} from "react-codemirror2";
+import {FilePreview} from "./components/filepreview";
 import {JSONSchema6} from "json-schema";
 import {Search} from "./components/search";
 import {Treebeard} from "react-treebeard";
@@ -103,6 +104,9 @@ let code = "{}";
 let glyph = "ok";
 let output = "";
 
+let fileBuffer = Buffer.alloc(0);
+let fileExtension = "";
+
 const codeChanged = (editor: any, codeData: any, value: string) => {
   console.log("CODE CHANGED");
   code = value;
@@ -124,55 +128,28 @@ const formChanged = (event: IChangeEvent<TaskSaved>) => {
   render();
 };
 
-// eslint-disable-next-line prefer-destructuring
-const fs: typeof import("fs") = windowAny.fs;
-// eslint-disable-next-line prefer-destructuring
-const path: typeof import("path") = windowAny.path;
-const buildFsTree = (parentDir: string) => {
+const fs = windowAny.require("fs");
+const path = windowAny.require("path");
+const buildFsTree = (parentDir: string, name: string) => {
   const node = {
     children: [],
-    name: path.basename(parentDir)
+    isFile: false,
+    name,
+    path: parentDir
   };
 
-  // eslint-disable-next-line no-sync
-  for (const childPath of fs.readdirSync(parentDir)) {
-    // eslint-disable-next-line no-sync
+  for (const childName of fs.readdirSync(parentDir)) {
+    const childPath = path.join(parentDir, childName);
     if (fs.statSync(childPath).isDirectory()) {
-      node.children.push(buildFsTree(childPath));
+      node.children.push(buildFsTree(childPath, childName));
+    } else {
+      node.children.push({isFile: true, name: childName, path: childPath});
     }
   }
   return node;
 };
 
-const tree = {
-  children: [
-    {
-      children: [
-        {name: "child1"},
-        {name: "child2"}
-      ],
-      name: "parent"
-    },
-    {
-      children: [],
-      loading: true,
-      name: "loading parent"
-    },
-    {
-      children: [
-        {
-          children: [
-            {name: "nested child 1"},
-            {name: "nested child 2"}
-          ],
-          name: "nested parent"
-        }
-      ],
-      name: "parent"
-    }
-  ],
-  name: "rootx"
-};
+let tree = {};
 
 class TreeExample extends React.PureComponent {
   public constructor (props) {
@@ -182,6 +159,13 @@ class TreeExample extends React.PureComponent {
 
   public onToggle (node, toggled) {
     console.log(node, toggled);
+
+    if (node.isFile) {
+      fileBuffer = fs.readFileSync(node.path);
+      fileExtension = path.extname(node.path).slice(1);
+      render();
+    }
+
     // eslint-disable-next-line no-shadow
     const {cursor, data} = this.state as any;
     if (cursor) {
@@ -197,7 +181,7 @@ class TreeExample extends React.PureComponent {
   public render () {
     return (
       <Treebeard
-        data={(this.state as any).data}
+        data={tree}
         onToggle={(node, toggled) => this.onToggle(node, toggled)}
       />
     );
@@ -242,7 +226,15 @@ render = () => {
           </Row>
           <Row>
             <Panel>
-              <Panel.Heading>Doubt</Panel.Heading>
+              <Panel.Heading>Preview</Panel.Heading>
+              <div style={{position: "relative", zIndex: 0}}>
+                <FilePreview extension={fileExtension} buffer={fileBuffer}/>
+              </div>
+            </Panel>
+          </Row>
+          <Row>
+            <Panel>
+              <Panel.Heading>Files</Panel.Heading>
               <TreeExample />
             </Panel>
           </Row>
@@ -258,7 +250,7 @@ render();
 const main = async () => {
   const sweet = await loadModule("@codesweets/core");
   submit = async (event) => {
-    // Clear the browser fs (or re-initialize)
+    windowAny.inMemory.empty();
     output = "";
     const saved = event.formData;
     const task = sweet.Task.deserialize(saved) as TaskRoot;
@@ -277,7 +269,8 @@ const main = async () => {
       }
     };
     await task.run();
-    console.log(buildFsTree("/"));
+    tree = buildFsTree("/", "/");
+    render();
   };
   render();
 };
