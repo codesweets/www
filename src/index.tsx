@@ -8,12 +8,15 @@ import $ from "jquery";
 import {Controlled as CodeMirror} from "react-codemirror2";
 import {JSONSchema6} from "json-schema";
 import {Search} from "./components/search";
+import {Treebeard} from "react-treebeard";
 
 type TaskSaved = import("@codesweets/core").TaskSaved;
 type TaskRoot = import("@codesweets/core").TaskRoot;
 type TaskMeta = import("@codesweets/core").TaskMeta;
 
-const loadModule = (url: string): any => (window as any).require(url);
+const windowAny = window as any;
+
+const loadModule = (url: string): any => windowAny.require(url);
 
 const taskNames: string[] = [];
 const taskSchemas: JSONSchema6[] = [];
@@ -121,6 +124,78 @@ const formChanged = (event: IChangeEvent<TaskSaved>) => {
   render();
 };
 
+const {fs} = windowAny;
+
+const buildFsTree = (parentDir: string) => {
+  // eslint-disable-next-line no-sync
+  for (const path of fs.readdirSync(parentDir)) {
+    // eslint-disable-next-line no-sync
+    if (fs.statSync(path).isDirectory()) {
+      buildFsTree(path);
+    }
+  }
+};
+
+const tree = {
+  children: [
+    {
+      children: [
+        {name: "child1"},
+        {name: "child2"}
+      ],
+      name: "parent"
+    },
+    {
+      children: [],
+      loading: true,
+      name: "loading parent"
+    },
+    {
+      children: [
+        {
+          children: [
+            {name: "nested child 1"},
+            {name: "nested child 2"}
+          ],
+          name: "nested parent"
+        }
+      ],
+      name: "parent"
+    }
+  ],
+  name: "rootx"
+};
+
+class TreeExample extends React.PureComponent {
+  public constructor (props) {
+    super(props);
+    this.state = {data: tree};
+  }
+
+  public onToggle (node, toggled) {
+    console.log(node, toggled);
+    // eslint-disable-next-line no-shadow
+    const {cursor, data} = this.state as any;
+    if (cursor) {
+      this.setState(() => ({active: false, cursor}));
+    }
+    node.active = true;
+    if (node.children) {
+      node.toggled = toggled;
+    }
+    this.setState(() => ({cursor: node, data: {...data}}));
+  }
+
+  public render () {
+    return (
+      <Treebeard
+        data={(this.state as any).data}
+        onToggle={(node, toggled) => this.onToggle(node, toggled)}
+      />
+    );
+  }
+}
+
 render = () => {
   ReactDOM.render(
     <Grid>
@@ -155,6 +230,12 @@ render = () => {
                   tabSize: 2
                 }} />
               </div>
+            </Panel>
+          </Row>
+          <Row>
+            <Panel>
+              <Panel.Heading>Doubt</Panel.Heading>
+              <TreeExample />
             </Panel>
           </Row>
         </Col>

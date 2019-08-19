@@ -35,7 +35,8 @@
     "react-codemirror2": "^6.0.0",
     "react-dom": "^16.8.6",
     "react-jsonschema-form": "^1.7.0",
-    "react-select": "^3.0.4"
+    "react-select": "^3.0.4",
+    "react-treebeard": "^3.2.4"
   },
   "devDependencies": {
     "@types/webpack": "^4.4.32",
