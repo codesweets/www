@@ -257,7 +257,7 @@ render();
 
 const main = async () => {
   const sweet = await loadModule("@codesweets/core");
-  submit = (event) => {
+  submit = async (event) => {
     // Clear the browser fs (or re-initialize)
     output = "";
     const saved = event.formData;
@@ -276,7 +276,8 @@ const main = async () => {
         query.focus();
       }
     };
-    task.run();
+    await task.run();
+    console.log(buildFsTree("/"));
   };
   render();
 };
