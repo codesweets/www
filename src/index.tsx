@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import "codesweets/bin/runtime";
 import * as React from "react";
 import * as ReactDOM from "react-dom";

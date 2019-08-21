@@ -1,3 +1,4 @@
+import "codemirror/addon/hint/show-hint.css";
 import * as React from "react";
 import CodeMirror from "codemirror";
 // eslint-disable-next-line sort-imports
@@ -125,6 +126,10 @@ require("codemirror/mode/yaml/yaml");
 require("codemirror/mode/yaml-frontmatter/yaml-frontmatter");
 require("codemirror/mode/z80/z80");
 
+require("codemirror/addon/hint/show-hint");
+require("codemirror/addon/hint/anyword-hint");
+require("codemirror/addon/hint/javascript-hint");
+
 export interface CodeEditorProps {
   onBeforeChange?: (editor: CodeMirror.Editor, data: CodeMirror.EditorChange, value: string) => void;
   value?: string;
@@ -138,6 +143,7 @@ export class CodeEditor extends React.Component<CodeEditorProps> {
         value={this.props.value || ""}
         onBeforeChange={this.props.onBeforeChange || null}
         options={{
+          extraKeys: {"Ctrl-Space": "autocomplete"},
           lineNumbers: true,
           mode: this.props.mode,
           readOnly: this.props.readOnly,

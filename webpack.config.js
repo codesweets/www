@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   devtool: "source-map",
@@ -19,6 +20,13 @@ module.exports = {
         enforce: "pre",
         loader: "source-map-loader",
         test: /\.js$/u
+      },
+      {
+        test: /\.css$/iu,
+        use: [
+          "style-loader",
+          "css-loader"
+        ]
       }
     ]
   },
@@ -26,6 +34,12 @@ module.exports = {
     filename: "bundle.js",
     path: path.resolve(__dirname, "bin")
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: "assets/index.html",
+      title: "Codesweets"
+    })
+  ],
   resolve: {
     extensions: [
       ".ts",
