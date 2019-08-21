@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import "codesweets/bin/runtime";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
@@ -5,7 +6,8 @@ import {Col, Glyphicon, Grid, Panel, Row} from "react-bootstrap";
 import Form, {IChangeEvent, ISubmitEvent} from "react-jsonschema-form";
 // eslint-disable-next-line id-length
 import $ from "jquery";
-import {Controlled as CodeMirror} from "react-codemirror2";
+import {CodeEditor} from "./components/codeeditor";
+import {CodeWidgetFactory} from "./components/codewidget";
 import {FilePreview} from "./components/filepreview";
 import {JSONSchema6} from "json-schema";
 import {Search} from "./components/search";
@@ -189,6 +191,10 @@ class TreeExample extends React.PureComponent {
 }
 
 render = () => {
+  const widgets = {
+    code: CodeWidgetFactory
+  };
+
   ReactDOM.render(
     <Grid>
       <Row>
@@ -198,38 +204,31 @@ render = () => {
             uiSchema={uiSchema}
             formData={data}
             onChange={formChanged}
-            onSubmit={submit} />
+            onSubmit={submit}
+            widgets={widgets} />
         </Col>
         <Col md={5}>
           <Row>
             <Panel>
               <Panel.Heading><Glyphicon glyph={glyph} /> JSON</Panel.Heading>
-              <div style={{position: "relative", zIndex: 0}}>
-                <CodeMirror value={code} onBeforeChange={codeChanged} options={{
-                  lineNumbers: true,
-                  tabSize: 2
-                }} />
-              </div>
+              <CodeEditor
+                value={code}
+                mode="javascript"
+                onBeforeChange={codeChanged} />
             </Panel>
           </Row>
           <Row>
             <Panel>
               <Panel.Heading>Output</Panel.Heading>
-              <div style={{position: "relative", zIndex: 0}}>
-                <CodeMirror value={output} onBeforeChange={null} options={{
-                  lineNumbers: true,
-                  readOnly: true,
-                  tabSize: 2
-                }} />
-              </div>
+              <CodeEditor
+                value={output}
+                readOnly />
             </Panel>
           </Row>
           <Row>
             <Panel>
               <Panel.Heading>Preview</Panel.Heading>
-              <div style={{position: "relative", zIndex: 0}}>
-                <FilePreview extension={fileExtension} buffer={fileBuffer}/>
-              </div>
+              <FilePreview extension={fileExtension} buffer={fileBuffer}/>
             </Panel>
           </Row>
           <Row>
