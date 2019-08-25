@@ -24,23 +24,22 @@ const taskNames: string[] = [];
 const taskSchemas: JSONSchema6[] = [];
 
 const schema: JSONSchema6 = {
-  definitions: {},
   properties: {
     components: {
       items: {
         dependencies: {
-          typename: {
+          qualifiedName: {
             oneOf: taskSchemas
           }
         },
         properties: {
-          typename: {
+          qualifiedName: {
             enum: taskNames,
             title: "Task",
             type: "string"
           }
         },
-        required: ["typename"],
+        required: ["qualifiedName"],
         type: "object"
       },
       title: "Tasks",
@@ -68,31 +67,30 @@ ReactDOM.render(
 );
 const globals: any = global;
 globals.ontaskmeta = (meta: TaskMeta) => {
-  console.log(meta.typename);
+  console.log("META", meta.qualifiedName);
   if (meta.hidden) {
     return;
   }
-  schema.definitions[meta.typename] = meta.schema;
-  taskNames.push(meta.typename);
+  taskNames.push(meta.qualifiedName);
   taskNames.sort();
 
   const componentSchema: JSONSchema6 = {
     properties: {
-      typename: {
-        enum: [meta.typename]
+      qualifiedName: {
+        enum: [meta.qualifiedName]
       },
-      [meta.typename]: {$ref: `#/definitions/${meta.typename}`}
+      [meta.qualifiedName]: meta.schema
     }
   };
   taskSchemas.push(componentSchema);
 
   if (meta.uiSchema) {
-    uiSchemas[meta.typename] = meta.uiSchema;
+    uiSchemas[meta.qualifiedName] = meta.uiSchema;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-extra-parens
   const compare = (lhs: any, rhs: any) => ((lhs > rhs) as any) - ((lhs < rhs) as any);
-  taskSchemas.sort((lhs: any, rhs: any) => compare(lhs.properties.typename.enum[0], rhs.properties.typename.enum[0]));
+  taskSchemas.sort((lhs: any, rhs: any) => compare(lhs.properties.qualifiedName.enum[0], rhs.properties.qualifiedName.enum[0]));
 
   console.log(JSON.stringify(meta.schema));
 };
@@ -100,13 +98,26 @@ globals.ontaskmeta = (meta: TaskMeta) => {
 let render: () => void = null;
 let submit: (event: ISubmitEvent<TaskSaved>) => void = null;
 
-let data = {};
+let data: TaskSaved = {} as any;
 let code = "{}";
 let glyph = "ok";
 let output = "";
 
 let fileBuffer = Buffer.alloc(0);
 let fileExtension = "";
+
+const scanAndloadModules = (parent: TaskSaved) => {
+  console.log(parent.qualifiedName);
+  if (parent.qualifiedName) {
+    loadModule(parent.qualifiedName.split(" - ")[1]);
+  }
+
+  if (parent.components) {
+    for (const component of parent.components) {
+      scanAndloadModules(component);
+    }
+  }
+};
 
 const codeChanged = (editor: any, codeData: any, value: string) => {
   console.log("CODE CHANGED");
@@ -118,6 +129,8 @@ const codeChanged = (editor: any, codeData: any, value: string) => {
     console.log(err);
     glyph = "remove";
   }
+
+  scanAndloadModules(data);
   render();
 };
 
@@ -254,11 +267,11 @@ const main = async () => {
     const task = sweet.Task.deserialize(saved) as TaskRoot;
     console.log("root", task);
     task.logger = (component, type, ...args) => {
-      console.log(type, component.meta.typename, ...args);
-      output += `${component.meta.typename} ${args.join(", ")}\n`;
+      console.log(type, component.meta.qualifiedName, ...args);
+      output += `${component.meta.qualifiedName} ${args.join(", ")}\n`;
       render();
       if (type === "error") {
-        const query = $(`#root_components_${component.id}_typename`);
+        const query = $(`#root_components_${component.id}_qualifiedName`);
         query.popover({
           content: args.join("\n"),
           trigger: "focus"
