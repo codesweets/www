@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const {GenerateSW} = require("workbox-webpack-plugin");
 
 module.exports = {
   devtool: "source-map",
@@ -35,6 +36,18 @@ module.exports = {
     path: path.resolve(__dirname, "bin")
   },
   plugins: [
+    new GenerateSW({
+      runtimeCaching: [
+        {
+          handler: "NetworkFirst",
+          urlPattern: /^https:\/\/unpkg.com\//u
+        },
+        {
+          handler: "CacheFirst",
+          urlPattern: /^https:\/\/(?:maxcdn.bootstrapcdn.com|cdnjs.cloudflare.com|cdn.jsdelivr.net)\//u
+        }
+      ]
+    }),
     new HtmlWebpackPlugin({
       template: "assets/index.html",
       title: "Codesweets"

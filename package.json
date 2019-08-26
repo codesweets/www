@@ -38,7 +38,8 @@
     "react-dom": "^16.8.6",
     "react-jsonschema-form": "^1.7.0",
     "react-select": "^3.0.4",
-    "react-treebeard": "^3.2.4"
+    "react-treebeard": "^3.2.4",
+    "workbox-webpack-plugin": "^4.3.1"
   },
   "devDependencies": {
     "@types/webpack": "^4.4.32",

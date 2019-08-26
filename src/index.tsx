@@ -1,3 +1,7 @@
+if (typeof navigator.serviceWorker !== "undefined") {
+  navigator.serviceWorker.register("service-worker.js").then(console.log, console.error);
+}
+
 import "codesweets/bin/runtime";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
@@ -90,7 +94,8 @@ globals.ontaskmeta = (meta: TaskMeta) => {
 
   // eslint-disable-next-line @typescript-eslint/no-extra-parens
   const compare = (lhs: any, rhs: any) => ((lhs > rhs) as any) - ((lhs < rhs) as any);
-  taskSchemas.sort((lhs: any, rhs: any) => compare(lhs.properties.qualifiedName.enum[0], rhs.properties.qualifiedName.enum[0]));
+  const getName = (taskSchema: JSONSchema6 | any) => taskSchema.properties.qualifiedName.enum[0];
+  taskSchemas.sort((lhs: any, rhs: any) => compare(getName(lhs), getName(rhs)));
 
   console.log(JSON.stringify(meta.schema));
 };
