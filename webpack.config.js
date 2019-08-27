@@ -44,7 +44,7 @@ module.exports = {
         },
         {
           handler: "CacheFirst",
-          urlPattern: /^https:\/\/(?:maxcdn.bootstrapcdn.com|cdnjs.cloudflare.com|cdn.jsdelivr.net)\//u
+          urlPattern: /^https:\/\/(?:maxcdn.bootstrapcdn.com|cdnjs.cloudflare.com)\//u
         }
       ]
     }),
