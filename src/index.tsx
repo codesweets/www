@@ -265,13 +265,13 @@ render();
 
 const main = async () => {
   const sweet = await loadModule("@codesweets/core");
+  const taskRootMeta = sweet.TaskRoot.meta as TaskMeta;
+  schema.properties[taskRootMeta.qualifiedName] = taskRootMeta.schema;
   submit = async (event) => {
     windowAny.inMemory.empty();
     output = "";
     const saved = event.formData;
-    const task = sweet.Task.deserialize(saved) as TaskRoot;
-    console.log("root", task);
-    task.logger = (component, type, ...args) => {
+    const logger = (component, type, ...args) => {
       console.log(type, component.meta.qualifiedName, ...args);
       output += `${component.meta.qualifiedName} ${args.join(", ")}\n`;
       render();
@@ -284,6 +284,8 @@ const main = async () => {
         query.focus();
       }
     };
+    const task = sweet.Task.deserialize(saved, logger) as TaskRoot;
+    console.log("root", task);
     await task.run();
     tree = buildFsTree("/", "/");
     render();

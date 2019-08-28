@@ -39,7 +39,7 @@ module.exports = {
     new GenerateSW({
       runtimeCaching: [
         {
-          handler: "NetworkFirst",
+          handler: "StaleWhileRevalidate",
           urlPattern: /^https:\/\/unpkg.com\//u
         },
         {
