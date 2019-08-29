@@ -124,6 +124,43 @@ const scanAndloadModules = (parent: TaskSaved) => {
   }
 };
 
+const updateProperties = () => {
+  const taskRootQualifiedName = "TaskRoot - @codesweets/core";
+  const taskRootData = data[taskRootQualifiedName] as Record<string, any>;
+  if (taskRootData) {
+    $("label.control-label[for^='root_']").add("input[type='checkbox'][id^='root_']").
+      each((index, element) => {
+        const path = element.getAttribute("for") || element.id;
+        const parts = path.split("_").slice(1);
+        console.log(parts);
+        if (parts[0] === taskRootQualifiedName) {
+          return;
+        }
+        let it: any = data;
+        for (const part of parts) {
+          if (!it) {
+            break;
+          }
+          it = it[part];
+        }
+
+        const parent = $(element).closest(".form-group.field");
+        const isOptional = parent.find("span.required").length === 0;
+        const isSatisified = typeof it !== "undefined";
+
+        const hideSatisfied = isSatisified && taskRootData.hideSatisfiedInputs;
+        const hideOptional = isOptional && taskRootData.hideOptionalInputs;
+
+        if (hideSatisfied || hideOptional) {
+          parent.css("display", "none");
+          return;
+        }
+
+        parent.css("display", "");
+      });
+  }
+};
+
 const codeChanged = (editor: any, codeData: any, value: string) => {
   console.log("CODE CHANGED");
   code = value;
@@ -137,6 +174,7 @@ const codeChanged = (editor: any, codeData: any, value: string) => {
 
   scanAndloadModules(data);
   render();
+  updateProperties();
 };
 
 const formChanged = (event: IChangeEvent<TaskSaved>) => {
@@ -145,6 +183,7 @@ const formChanged = (event: IChangeEvent<TaskSaved>) => {
   data = event.formData;
   code = JSON.stringify(data, null, 2);
   render();
+  updateProperties();
 };
 
 const fs = windowAny.require("fs");
