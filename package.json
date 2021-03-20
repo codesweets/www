@@ -30,7 +30,7 @@
     "bootstrap": "^3.4.1",
     "codemirror": "^5.48.0",
     "file-type": "^12.2.0",
-    "is-svg": "^4.2.0",
+    "is-svg": "^4.2.2",
     "json-schema": "^0.2.3",
     "react": "^16.8.6",
     "react-bootstrap": "^0.32.4",
